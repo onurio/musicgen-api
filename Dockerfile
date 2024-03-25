@@ -1,15 +1,14 @@
-# Use an official Python runtime as a parent image
-FROM huggingface/transformers-pytorch-gpu:4.39.0
+FROM python:3.9
 
-# Set the working directory in the container
 WORKDIR /app
-
-# Copy the current directory contents into the container at /app
 COPY . /app
 
 # Install any needed dependencies specified in requirements.txt
-RUN pip3 install --no-cache-dir -r requirements.txt
-
+RUN apt update
+RUN apt install -y git libsndfile1-dev tesseract-ocr espeak-ng python3 python3-pip ffmpeg
+RUN python3 -m pip install --no-cache-dir --upgrade pip
+RUN pip3 install --upgrade pip
+RUN pip3 install -r requirements.txt
 # Expose the port that FastAPI runs on
 EXPOSE 8000
 
