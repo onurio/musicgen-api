@@ -21,18 +21,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-synthesizer = pipeline("text-to-audio", "facebook/musicgen-stereo-large", device="mps:0", torch_dtype=torch.float16)
+# synthesizer = pipeline("text-to-audio", "facebook/musicgen-stereo-large", device="mps:0", torch_dtype=torch.float16)
 
-def generate_audio(text: str):
-    # Here you can implement your audio generation logic
-    # For demonstration purposes, let's use your existing code
-    logger.info("Generating audio for text: %s", text)
-    try:
-        music = synthesizer(text, forward_params={"max_new_tokens": 256})
-        return music["audio"][0].T, music["sampling_rate"]
-    except Exception as e:
-        logger.error("Error generating audio for text: %s", text, exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to generate audio")
+# def generate_audio(text: str):
+#     # Here you can implement your audio generation logic
+#     # For demonstration purposes, let's use your existing code
+#     logger.info("Generating audio for text: %s", text)
+#     try:
+#         music = synthesizer(text, forward_params={"max_new_tokens": 256})
+#         return music["audio"][0].T, music["sampling_rate"]
+#     except Exception as e:
+#         logger.error("Error generating audio for text: %s", text, exc_info=True)
+#         raise HTTPException(status_code=500, detail="Failed to generate audio")
 
 
 @app.get("/health")
@@ -46,20 +46,22 @@ async def generate_audio_endpoint(request: Request):
     text = data.get("text", "")
 
     logger.info("Received request to generate audio for text: %s", text)
-    try:
-        audio_data, sampling_rate = generate_audio(text)
-        logger.info("Generated audio for text: %s", text)
-    except HTTPException as e:
-        logger.error("HTTP error generating audio for text: %s", text, exc_info=True)
-        raise e
-    except Exception as e:
-        logger.error("Error generating audio for text: %s", text, exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to generate audio")
 
-    with io.BytesIO() as buffer:
-        sf.write(buffer, audio_data, sampling_rate, format="WAV")
-        buffer.seek(0)
-        return Response(content=buffer.getvalue(), media_type="audio/wav")
+    return { text }
+    # try:
+    #     audio_data, sampling_rate = generate_audio(text)
+    #     logger.info("Generated audio for text: %s", text)
+    # except HTTPException as e:
+    #     logger.error("HTTP error generating audio for text: %s", text, exc_info=True)
+    #     raise e
+    # except Exception as e:
+    #     logger.error("Error generating audio for text: %s", text, exc_info=True)
+    #     raise HTTPException(status_code=500, detail="Failed to generate audio")
+
+    # with io.BytesIO() as buffer:
+    #     sf.write(buffer, audio_data, sampling_rate, format="WAV")
+    #     buffer.seek(0)
+    #     return Response(content=buffer.getvalue(), media_type="audio/wav")
 
 
 
